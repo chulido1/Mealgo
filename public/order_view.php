@@ -35,7 +35,7 @@ require ROOT_PATH . '/templates/header.php';
 <section class="container order-detail-page">
     <div class="order-detail-head">
         <div>
-            <p class="muted">Mealgo order tracking</p>
+            <p class="muted">Отслеживание заказа</p>
             <h1>Заказ #<?= (int) $order['id'] ?></h1>
             <p class="muted">
                 <?= e((string) $order['restaurant_name']) ?> •

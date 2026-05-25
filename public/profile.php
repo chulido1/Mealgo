@@ -180,7 +180,7 @@ require ROOT_PATH . '/templates/header.php';
                     <input id="phone" type="tel" name="phone" value="<?= e((string) $user['phone']) ?>" placeholder="+7 (___) ___-__-__">
                 </div>
                 <button class="btn btn-primary" type="submit">Сохранить профиль</button>
-                <a class="btn btn-ghost" href="<?= e(base_url('/logout.php')) ?>">Выйти</a>
+                <a class="btn btn-ghost profile-logout-btn" href="<?= e(base_url('/logout.php')) ?>">Выйти</a>
             </form>
         </div>
 

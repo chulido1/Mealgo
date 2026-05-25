@@ -2,11 +2,24 @@
 
 declare(strict_types=1);
 
+class OrderMinimumAmountException extends RuntimeException
+{
+}
+
 function create_order_from_cart(int $userId, int $cartId, array $payload): int
 {
     $cart = get_cart_detail($userId, $cartId);
     if (!$cart || empty($cart['items'])) {
         throw new RuntimeException('Корзина не найдена или пуста.');
+    }
+
+    $minOrderAmount = (float) ($cart['min_order_amount'] ?? 0);
+    if ($minOrderAmount > 0 && (float) $cart['subtotal'] < $minOrderAmount) {
+        throw new OrderMinimumAmountException(
+            'Минимальная сумма заказа в этом ресторане: '
+            . number_format($minOrderAmount, 0, '.', ' ')
+            . ' ₽.'
+        );
     }
 
     $pdo = db();

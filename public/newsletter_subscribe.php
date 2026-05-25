@@ -54,7 +54,7 @@ try {
     clear_old_input();
 
     if (send_newsletter_welcome_email($email)) {
-        flash('success', 'Подписка оформлена. Письмо отправлено в MailHog.');
+        flash('success', 'Подписка оформлена. Письмо отправлено вам на почту.');
     } else {
         flash('error', 'Подписка сохранена, но MailHog сейчас не отвечает. Проверьте, что MailHog запущен на 127.0.0.1:1025.');
     }

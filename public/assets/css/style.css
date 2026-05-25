@@ -2877,13 +2877,17 @@ body:not(.page-home-brutal) .mono-subscribe button {
 }
 
 .restaurant-review-form .custom-dropdown__chevron {
-    color: rgba(255, 255, 255, 0.72);
-    font-size: 18px;
+    width: 10px;
+    height: 10px;
+    border-right: 2px solid rgba(255, 255, 255, 0.82);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.82);
+    transform: translateY(-2px) rotate(45deg);
     transition: transform 0.2s ease;
+    flex-shrink: 0;
 }
 
 .restaurant-review-form .custom-dropdown.is-open .custom-dropdown__chevron {
-    transform: rotate(180deg);
+    transform: translateY(2px) rotate(225deg);
 }
 
 .restaurant-review-form .custom-dropdown__menu {
@@ -3268,6 +3272,30 @@ body:not(.page-home-brutal) .mono-subscribe button {
 .cart-restaurant-card__summary p:last-child {
     color: #fff;
     font-size: 1.06rem;
+}
+
+.cart-restaurant-card__warning {
+    width: fit-content;
+    max-width: 100%;
+    padding-left: 10px;
+    border-left: 2px solid rgba(255, 196, 87, 0.82);
+    color: rgba(255, 235, 190, 0.92) !important;
+    font-weight: 700;
+}
+
+.checkout-min-order-warning {
+    margin: 0;
+    padding-left: 12px;
+    border-left: 2px solid rgba(255, 196, 87, 0.82);
+    color: rgba(255, 235, 190, 0.92);
+    font-weight: 700;
+    line-height: 1.45;
+}
+
+.page-cart-brutal .cart-restaurant-card .btn-disabled {
+    cursor: not-allowed;
+    opacity: .55;
+    pointer-events: none;
 }
 
 .page-cart-brutal .empty-state {
@@ -3922,6 +3950,17 @@ body:not(.page-home-brutal) .mono-subscribe button {
 .page-profile-brutal .profile-address-delete:hover {
     background: rgba(255, 92, 92, 0.12);
     border-color: rgba(255, 112, 112, 0.52);
+}
+
+.page-profile-brutal .profile-logout-btn {
+    border-color: rgba(255, 112, 112, 0.34);
+    color: #ffd7d7;
+}
+
+.page-profile-brutal .profile-logout-btn:hover {
+    background: rgba(255, 92, 92, 0.12);
+    border-color: rgba(255, 112, 112, 0.52);
+    color: #fff;
 }
 
 .page-profile-brutal .checkout-layout {
@@ -5253,6 +5292,119 @@ body:not(.page-home-brutal) .site-shell > .mono-footer .mono-subscribe button {
     flex-wrap: wrap;
 }
 
+.page-admin-brutal .admin-table-scroll {
+    width: 100%;
+    overflow-x: visible;
+    overflow-y: visible;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.page-admin-brutal .admin-users-table {
+    width: 100%;
+    min-width: 0;
+    table-layout: fixed;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+}
+
+.page-admin-brutal .admin-users-table th,
+.page-admin-brutal .admin-users-table td {
+    padding: 16px 10px;
+}
+
+.page-admin-brutal .admin-users-table th:nth-child(1),
+.page-admin-brutal .admin-users-table td:nth-child(1) {
+    width: 4.5%;
+}
+
+.page-admin-brutal .admin-users-table th:nth-child(2),
+.page-admin-brutal .admin-users-table td:nth-child(2) {
+    width: 12%;
+}
+
+.page-admin-brutal .admin-users-table th:nth-child(3),
+.page-admin-brutal .admin-users-table td:nth-child(3) {
+    width: 18%;
+}
+
+.page-admin-brutal .admin-users-table th:nth-child(4),
+.page-admin-brutal .admin-users-table td:nth-child(4) {
+    width: 16%;
+}
+
+.page-admin-brutal .admin-users-table th:nth-child(5),
+.page-admin-brutal .admin-users-table td:nth-child(5) {
+    width: 18%;
+}
+
+.page-admin-brutal .admin-users-table th:nth-child(6),
+.page-admin-brutal .admin-users-table td:nth-child(6) {
+    width: 10%;
+}
+
+.page-admin-brutal .admin-users-table th:nth-child(7),
+.page-admin-brutal .admin-users-table td:nth-child(7) {
+    width: 12%;
+    text-align: center;
+}
+
+.page-admin-brutal .admin-users-table th:nth-child(8),
+.page-admin-brutal .admin-users-table td:nth-child(8) {
+    width: 9.5%;
+}
+
+.page-admin-brutal .admin-user-email,
+.page-admin-brutal .admin-user-phone {
+    display: inline-flex;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.page-admin-brutal .admin-user-phone {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+}
+
+.page-admin-brutal .admin-users-table td:nth-child(5) .custom-dropdown,
+.page-admin-brutal .admin-users-table td:nth-child(6) .custom-dropdown,
+.page-admin-brutal .admin-users-table td:nth-child(5) select,
+.page-admin-brutal .admin-users-table td:nth-child(6) select {
+    width: 100%;
+    min-width: 0;
+}
+
+.page-admin-brutal .admin-users-table td:nth-child(5) .custom-dropdown__toggle {
+    gap: 8px;
+    padding-inline: 14px 12px;
+}
+
+.page-admin-brutal .admin-users-table td:nth-child(5) .custom-dropdown__toggle span:first-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.page-admin-brutal .admin-users-table td:nth-child(6) .custom-dropdown__toggle {
+    justify-content: center;
+}
+
+.page-admin-brutal .admin-user-save-form {
+    display: block !important;
+}
+
+.page-admin-brutal .admin-user-save-form .btn {
+    width: 100%;
+    min-height: 42px;
+    padding-inline: 10px;
+    justify-content: center;
+}
+
 .page-admin-brutal .panel input:not([type="checkbox"]):not([type="hidden"]):not(.qty-control__input),
 .page-admin-brutal .panel textarea,
 .page-admin-brutal .panel select {
@@ -5269,9 +5421,68 @@ body:not(.page-home-brutal) .site-shell > .mono-footer .mono-subscribe button {
     transition: border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
 }
 
+.page-admin-brutal .panel input[type="number"]::-webkit-outer-spin-button,
+.page-admin-brutal .panel input[type="number"]::-webkit-inner-spin-button {
+    margin: 0;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.page-admin-brutal .panel input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+.page-admin-brutal .admin-time-range {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.page-admin-brutal .admin-time-range label {
+    display: grid;
+    gap: 7px;
+    min-width: 0;
+}
+
+.page-admin-brutal .admin-time-range span {
+    color: rgba(255, 255, 255, 0.58);
+    font-family: "Inter", sans-serif;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.page-admin-brutal .admin-time-range input[type="time"] {
+    width: 100%;
+}
+
+.page-admin-brutal .admin-time-range input[type="time"]::-webkit-calendar-picker-indicator {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    cursor: pointer;
+    filter: invert(1);
+    opacity: 0.78;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.page-admin-brutal .admin-time-range input[type="time"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+    transform: scale(1.08);
+}
+
 .page-admin-brutal .panel input::placeholder,
 .page-admin-brutal .panel textarea::placeholder {
     color: rgba(255, 255, 255, 0.42);
+}
+
+.page-admin-brutal .admin-media-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.25fr);
+    gap: 16px;
+    align-items: stretch;
 }
 
 .page-admin-brutal .admin-image-upload {
@@ -5285,12 +5496,50 @@ body:not(.page-home-brutal) .site-shell > .mono-footer .mono-subscribe button {
     background: rgba(255, 255, 255, 0.035);
 }
 
+.page-admin-brutal .admin-image-upload--banner {
+    grid-template-columns: minmax(190px, 0.9fr) minmax(0, 1fr);
+}
+
+.page-admin-brutal .admin-image-upload--compact {
+    grid-template-columns: 1fr;
+    padding: 18px;
+}
+
+.page-admin-brutal .admin-image-upload--compact .admin-image-upload__content {
+    align-content: start;
+}
+
+.page-admin-brutal .admin-image-upload--compact .muted {
+    max-width: 520px;
+}
+
+.page-admin-brutal .admin-file-upload {
+    display: block;
+    padding: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.035);
+}
+
 .page-admin-brutal .admin-image-upload__preview {
     min-height: 120px;
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 16px;
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.05);
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.025)),
+        rgba(255, 255, 255, 0.05);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.18);
+}
+
+.page-admin-brutal .admin-image-upload--logo .admin-image-upload__preview {
+    aspect-ratio: 1 / 1;
+    min-height: 132px;
+}
+
+.page-admin-brutal .admin-image-upload--banner .admin-image-upload__preview {
+    aspect-ratio: 16 / 9;
+    min-height: 132px;
 }
 
 .page-admin-brutal .admin-image-upload__preview img {
@@ -5304,6 +5553,7 @@ body:not(.page-home-brutal) .site-shell > .mono-footer .mono-subscribe button {
     display: grid;
     gap: 10px;
     align-content: center;
+    min-width: 0;
 }
 
 .page-admin-brutal .admin-image-upload__content label {
@@ -5311,7 +5561,15 @@ body:not(.page-home-brutal) .site-shell > .mono-footer .mono-subscribe button {
     font-weight: 900;
 }
 
-.page-admin-brutal .admin-image-upload input[type="file"] {
+.page-admin-brutal .admin-image-upload__path {
+    font-size: 0.88rem !important;
+    font-weight: 700 !important;
+    color: rgba(255, 255, 255, 0.72) !important;
+    background: rgba(255, 255, 255, 0.035) !important;
+}
+
+.page-admin-brutal .admin-image-upload input[type="file"],
+.page-admin-brutal .admin-file-upload input[type="file"] {
     min-height: 52px;
     border: 1px dashed rgba(255, 255, 255, 0.24);
     border-radius: 14px;
@@ -5320,7 +5578,8 @@ body:not(.page-home-brutal) .site-shell > .mono-footer .mono-subscribe button {
     color: rgba(255, 255, 255, 0.78);
 }
 
-.page-admin-brutal .admin-image-upload input[type="file"]::file-selector-button {
+.page-admin-brutal .admin-image-upload input[type="file"]::file-selector-button,
+.page-admin-brutal .admin-file-upload input[type="file"]::file-selector-button {
     min-height: 34px;
     margin-right: 12px;
     border: none;
@@ -5331,6 +5590,54 @@ body:not(.page-home-brutal) .site-shell > .mono-footer .mono-subscribe button {
     font-family: "Oswald", sans-serif;
     font-weight: 600;
     cursor: pointer;
+}
+
+.page-admin-brutal .admin-image-upload__content .admin-upload-button {
+    width: fit-content;
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 12px;
+    padding: 0 18px;
+    background: #fff;
+    color: #111;
+    font-family: "Oswald", sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+
+.page-admin-brutal .admin-image-upload__content .admin-upload-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
+    background: rgba(255, 255, 255, 0.92);
+}
+
+.page-admin-brutal .admin-upload-filename {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.page-admin-brutal .admin-upload-button input[type="file"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    min-height: 0;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
 
 .page-admin-brutal .panel input:not(.qty-control__input):focus,
@@ -5591,7 +5898,13 @@ body:not(.page-home-brutal) .site-shell > .mono-footer .mono-subscribe button {
     }
 
     .page-admin-brutal .two-col,
+    .page-admin-brutal .admin-media-grid,
     .page-admin-brutal .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .page-admin-brutal .admin-image-upload,
+    .page-admin-brutal .admin-image-upload--banner {
         grid-template-columns: 1fr;
     }
 }

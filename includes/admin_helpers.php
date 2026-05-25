@@ -10,7 +10,7 @@ function admin_url(string $path = ''): string
 function admin_nav_items(): array
 {
     return [
-        'index.php' => 'Панель',
+        'index.php' => 'Последние заказы',
         'restaurants.php' => 'Рестораны',
         'restaurant_categories.php' => 'Категории кухонь',
         'menu_categories.php' => 'Категории меню',

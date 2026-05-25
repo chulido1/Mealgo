@@ -522,8 +522,9 @@
     document.querySelectorAll("[data-image-upload]").forEach((upload) => {
         const input = upload.querySelector("[data-image-upload-input]");
         const preview = upload.querySelector("[data-image-upload-preview]");
+        const fileName = upload.querySelector("[data-image-upload-name]");
 
-        if (!input || !preview) {
+        if (!input) {
             return;
         }
 
@@ -534,7 +535,13 @@
                 return;
             }
 
-            preview.src = URL.createObjectURL(file);
+            if (preview) {
+                preview.src = URL.createObjectURL(file);
+            }
+
+            if (fileName) {
+                fileName.textContent = file.name;
+            }
         });
     });
 
@@ -741,6 +748,27 @@
 
         restaurantSelect.addEventListener("change", filterCategories);
         filterCategories();
+    });
+
+    document.querySelectorAll("[data-menu-category-form]").forEach((form) => {
+        const restaurantSelect = form.querySelector("[data-menu-category-restaurant]");
+        const sortOrderInput = form.querySelector("[data-menu-category-sort-order]");
+
+        if (!restaurantSelect || !sortOrderInput || !sortOrderInput.readOnly) {
+            return;
+        }
+
+        const updateSortOrder = () => {
+            const selectedOption = restaurantSelect.selectedOptions[0];
+            const nextSortOrder = selectedOption?.dataset.nextSortOrder;
+
+            if (nextSortOrder) {
+                sortOrderInput.value = nextSortOrder;
+            }
+        };
+
+        restaurantSelect.addEventListener("change", updateSortOrder);
+        updateSortOrder();
     });
 
     document.querySelectorAll("[data-custom-dropdown]").forEach((dropdown) => {

@@ -176,7 +176,7 @@ require ROOT_PATH . '/templates/header.php';
                         <input id="rating" type="hidden" name="rating" value="5" data-custom-dropdown-input>
                         <button class="custom-dropdown__toggle" type="button" aria-expanded="false" data-custom-dropdown-toggle>
                             <span data-custom-dropdown-label>5 ★</span>
-                            <span class="custom-dropdown__chevron" aria-hidden="true">⌄</span>
+                            <span class="custom-dropdown__chevron" aria-hidden="true"></span>
                         </button>
                         <div class="custom-dropdown__menu" role="listbox" data-custom-dropdown-menu>
                             <?php for ($i = 5; $i >= 1; $i--): ?>

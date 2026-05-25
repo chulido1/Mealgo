@@ -23,6 +23,16 @@ foreach ($savedAddresses as $address) {
     $savedAddressMap[(int) $address['id']] = $address;
 }
 
+$cart = get_cart_detail($userId, $cartId);
+if (!$cart) {
+    flash('error', 'Корзина не найдена.');
+    redirect_to('/restaurants.php');
+}
+
+$minOrderAmount = (float) ($cart['min_order_amount'] ?? 0);
+$isBelowMinOrder = $minOrderAmount > 0 && (float) $cart['subtotal'] < $minOrderAmount;
+$minOrderLeft = max(0, $minOrderAmount - (float) $cart['subtotal']);
+
 if (is_post()) {
     verify_csrf();
     $action = (string) ($_POST['action'] ?? '');
@@ -80,8 +90,19 @@ if (is_post()) {
             $errors['payment_method'] = 'Выберите способ оплаты.';
         }
 
+        if ($isBelowMinOrder) {
+            $errors['min_order_amount'] = 'Минимальная сумма заказа в этом ресторане: '
+                . number_format($minOrderAmount, 0, '.', ' ')
+                . ' ₽.';
+        }
+
         if ($errors) {
-            flash('error', 'Проверьте поля формы оформления.');
+            flash(
+                'error',
+                $isBelowMinOrder
+                    ? 'Добавьте товаров еще на ' . number_format($minOrderLeft, 0, '.', ' ') . ' ₽ до минимальной суммы заказа.'
+                    : 'Проверьте поля формы оформления.'
+            );
             with_old_input($oldPayload);
             redirect_to('/checkout.php?cart_id=' . $cartId);
         }
@@ -91,18 +112,16 @@ if (is_post()) {
             clear_old_input();
             flash('success', 'Заказ оформлен.');
             redirect_to('/order_view.php?id=' . $orderId);
+        } catch (OrderMinimumAmountException $e) {
+            app_log('checkout_min_order_error', ['message' => $e->getMessage()]);
+            flash('error', $e->getMessage());
+            redirect_to('/checkout.php?cart_id=' . $cartId);
         } catch (Throwable $e) {
             app_log('checkout_error', ['message' => $e->getMessage()]);
             flash('error', 'Не удалось оформить заказ. Повторите попытку.');
             redirect_to('/checkout.php?cart_id=' . $cartId);
         }
     }
-}
-
-$cart = get_cart_detail($userId, $cartId);
-if (!$cart) {
-    flash('error', 'Корзина не найдена.');
-    redirect_to('/restaurants.php');
 }
 
 $paymentLabels = [
@@ -248,7 +267,13 @@ require ROOT_PATH . '/templates/header.php';
                         <textarea id="comment" name="comment"><?= e(old('comment')) ?></textarea>
                     </div>
 
-                    <button class="btn btn-primary" type="submit" <?= $hasSavedAddresses ? '' : 'disabled' ?>>Подтвердить заказ</button>
+                    <?php if ($isBelowMinOrder): ?>
+                        <p class="checkout-min-order-warning">
+                            Минимальная сумма заказа: <?= number_format($minOrderAmount, 0, '.', ' ') ?> ₽.
+                            Добавьте еще на <?= number_format($minOrderLeft, 0, '.', ' ') ?> ₽.
+                        </p>
+                    <?php endif; ?>
+                    <button class="btn btn-primary" type="submit" <?= ($hasSavedAddresses && !$isBelowMinOrder) ? '' : 'disabled' ?>>Подтвердить заказ</button>
                 </form>
             </div>
 
@@ -305,6 +330,9 @@ require ROOT_PATH . '/templates/header.php';
                 <hr class="checkout-divider">
                 <div class="checkout-totals">
                     <p>Промежуточный итог: <strong><?= number_format((float) $cart['subtotal'], 0, '.', ' ') ?> ₽</strong></p>
+                    <?php if ($minOrderAmount > 0): ?>
+                        <p>Минимальный заказ: <strong><?= number_format($minOrderAmount, 0, '.', ' ') ?> ₽</strong></p>
+                    <?php endif; ?>
                     <p>Доставка: <strong><?= number_format((float) $cart['delivery_fee'], 0, '.', ' ') ?> ₽</strong></p>
                     <p class="checkout-totals__total">Итого: <strong><?= number_format((float) $cart['total'], 0, '.', ' ') ?> ₽</strong></p>
                 </div>

@@ -1,0 +1,9 @@
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    RewriteRule ^(?:config|database|includes|storage|templates)(?:/|$) - [F,L]
+    RewriteRule (^|/)\.(?:env|git|gitignore|htaccess) - [F,L]
+    RewriteRule ^README\.md$ - [F,L]
+</IfModule>

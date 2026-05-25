@@ -51,6 +51,17 @@ if (is_post()) {
 
 $editId = (int) ($_GET['edit'] ?? 0);
 $editing = $editId > 0 ? db_one('SELECT * FROM menu_categories WHERE id = :id', ['id' => $editId]) : null;
+$nextSortOrders = db_all(
+    'SELECT restaurant_id, COALESCE(MAX(sort_order), 0) + 10 AS next_sort_order
+     FROM menu_categories
+     GROUP BY restaurant_id'
+);
+$nextSortOrdersByRestaurant = [];
+foreach ($nextSortOrders as $nextSortOrder) {
+    $nextSortOrdersByRestaurant[(int) $nextSortOrder['restaurant_id']] = (int) $nextSortOrder['next_sort_order'];
+}
+$defaultRestaurantId = (int) ($editing['restaurant_id'] ?? ($restaurants[0]['id'] ?? 0));
+$defaultSortOrder = (int) ($editing['sort_order'] ?? ($nextSortOrdersByRestaurant[$defaultRestaurantId] ?? 10));
 $rows = db_all(
     'SELECT mc.*, r.name AS restaurant_name
      FROM menu_categories mc
@@ -68,17 +79,21 @@ require ROOT_PATH . '/templates/header.php';
         <div>
             <div class="panel">
                 <h3 style="margin-top:0;"><?= $editing ? 'Редактирование' : 'Новая категория меню' ?></h3>
-                <form method="post">
+                <form method="post" data-menu-category-form>
                     <?= csrf_field() ?>
                     <input type="hidden" name="action" value="save">
                     <input type="hidden" name="id" value="<?= (int) ($editing['id'] ?? 0) ?>">
                     <div class="two-col">
                         <div class="field">
                             <label>Ресторан</label>
-                            <select name="restaurant_id" required>
+                            <select name="restaurant_id" required data-menu-category-restaurant>
                                 <option value="">Выберите ресторан</option>
                                 <?php foreach ($restaurants as $restaurant): ?>
-                                    <option value="<?= (int) $restaurant['id'] ?>" <?= (int) ($editing['restaurant_id'] ?? 0) === (int) $restaurant['id'] ? 'selected' : '' ?>>
+                                    <option
+                                        value="<?= (int) $restaurant['id'] ?>"
+                                        data-next-sort-order="<?= (int) ($nextSortOrdersByRestaurant[(int) $restaurant['id']] ?? 10) ?>"
+                                        <?= (int) ($editing['restaurant_id'] ?? 0) === (int) $restaurant['id'] ? 'selected' : '' ?>
+                                    >
                                         <?= e($restaurant['name']) ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -87,7 +102,11 @@ require ROOT_PATH . '/templates/header.php';
                         <div class="field"><label>Название</label><input name="name" value="<?= e((string) ($editing['name'] ?? '')) ?>" required></div>
                     </div>
                     <div class="two-col">
-                        <div class="field"><label>Порядок</label><input type="number" name="sort_order" value="<?= e((string) ($editing['sort_order'] ?? 0)) ?>"></div>
+                        <div class="field">
+                            <label>Порядок</label>
+                            <input type="number" inputmode="numeric" name="sort_order" value="<?= e((string) $defaultSortOrder) ?>" data-menu-category-sort-order <?= $editing ? '' : 'readonly' ?>>
+                            <small class="muted">Заполняется автоматически для выбранного ресторана.</small>
+                        </div>
                         <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" name="is_active" <?= !isset($editing['is_active']) || (int) $editing['is_active'] === 1 ? 'checked' : '' ?>> Активна</label>
                     </div>
                     <button class="btn btn-primary" type="submit"><?= $editing ? 'Сохранить' : 'Создать' ?></button>

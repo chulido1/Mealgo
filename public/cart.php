@@ -75,6 +75,11 @@ require ROOT_PATH . '/templates/header.php';
     <?php else: ?>
         <div class="cart-page__list">
             <?php foreach ($carts as $cart): ?>
+                <?php
+                $minOrderAmount = (float) ($cart['min_order_amount'] ?? 0);
+                $isBelowMinOrder = $minOrderAmount > 0 && (float) $cart['subtotal'] < $minOrderAmount;
+                $minOrderLeft = max(0, $minOrderAmount - (float) $cart['subtotal']);
+                ?>
                 <article class="cart-restaurant-card" id="cart-<?= (int) $cart['id'] ?>">
                     <div class="cart-restaurant-card__top">
                         <div>
@@ -87,7 +92,11 @@ require ROOT_PATH . '/templates/header.php';
 
                         <div class="cart-restaurant-card__actions">
                             <a class="btn btn-ghost" href="<?= e(base_url('/restaurant.php?id=' . (int) $cart['restaurant_id'])) ?>">Открыть ресторан</a>
-                            <a class="btn btn-primary" href="<?= e(base_url('/checkout.php?cart_id=' . (int) $cart['id'])) ?>">Оформить заказ</a>
+                            <?php if ($isBelowMinOrder): ?>
+                                <span class="btn btn-primary btn-disabled" aria-disabled="true">Оформить заказ</span>
+                            <?php else: ?>
+                                <a class="btn btn-primary" href="<?= e(base_url('/checkout.php?cart_id=' . (int) $cart['id'])) ?>">Оформить заказ</a>
+                            <?php endif; ?>
                             <form method="post">
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="action" value="clear_cart">
@@ -139,6 +148,12 @@ require ROOT_PATH . '/templates/header.php';
 
                     <div class="cart-restaurant-card__summary">
                         <p>Промежуточный итог: <strong><?= number_format((float) $cart['subtotal'], 0, '.', ' ') ?> ₽</strong></p>
+                        <?php if ($minOrderAmount > 0): ?>
+                            <p>Минимальный заказ: <strong><?= number_format($minOrderAmount, 0, '.', ' ') ?> ₽</strong></p>
+                        <?php endif; ?>
+                        <?php if ($isBelowMinOrder): ?>
+                            <p class="cart-restaurant-card__warning">Добавьте еще на <?= number_format($minOrderLeft, 0, '.', ' ') ?> ₽, чтобы оформить заказ.</p>
+                        <?php endif; ?>
                         <p>Доставка: <strong><?= number_format((float) $cart['delivery_fee'], 0, '.', ' ') ?> ₽</strong></p>
                         <p>Итого: <strong><?= number_format((float) $cart['total'], 0, '.', ' ') ?> ₽</strong></p>
                     </div>

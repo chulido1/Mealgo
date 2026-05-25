@@ -26,9 +26,9 @@ return [
         'password_reset_decay_seconds' => 1800,
     ],
     'maps' => [
-        'provider' => getenv('MAP_PROVIDER') ?: 'dadata',
+        'provider' => getenv('MAP_PROVIDER') ?: 'local',
         'nominatim_url' => getenv('NOMINATIM_URL') ?: 'https://nominatim.openstreetmap.org/search',
         'dadata_suggest_url' => getenv('DADATA_SUGGEST_URL') ?: 'https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address',
-        'dadata_api_key' => getenv('DADATA_API_KEY') ?: '76cb7a0cd7c96a33f60bd54eb12309d00ea32aac',
+        'dadata_api_key' => getenv('DADATA_API_KEY') ?: '',
     ],
 ];

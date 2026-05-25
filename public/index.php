@@ -12,10 +12,10 @@ foreach (get_kitchen_categories() as $category) {
 }
 
 $foodIntentTiles = [
-    ['title' => 'Все блюда и напитки из ресторанов Mealgo', 'url' => '/restaurants.php', 'image' => '/uploads/menu/tile-all-menu.png', 'variant' => 'featured'],
+    ['title' => 'Выберите, что хочется сейчас', 'url' => '/restaurants.php', 'image' => '/uploads/menu/tile-all-menu.png', 'variant' => 'featured'],
     ['title' => 'Новинки и хиты', 'url' => '/restaurants.php?has_hits=1', 'image' => '/uploads/menu/tile-new-hits.png', 'variant' => 'compact'],
     ['title' => 'Кофе и десерты', 'menu_category' => 'Напитки|Десерты|Трайфлы|Эклеры|Торты', 'image' => '/uploads/menu/tile-coffee-desserts.png', 'variant' => 'compact'],
-    ['title' => 'Утро и завтраки', 'menu_category' => 'Завтраки|Круассаны', 'image' => '/uploads/menu/tile-breakfast.png'],
+    ['title' => 'Завтраки', 'menu_category' => 'Завтраки|Круассаны', 'image' => '/uploads/menu/tile-breakfast.png'],
     ['title' => 'Горячие блюда', 'menu_category' => 'Горячее|Вторые блюда|Паста|Паста и ризотто', 'image' => '/uploads/menu/tile-hot-meals.png'],
     ['title' => 'Закуски и салаты', 'menu_category' => 'Закуски|Салаты|Снеки|Снэки', 'image' => '/uploads/menu/tile-snacks-salads.png'],
     ['title' => 'Супы', 'menu_category' => 'Супы', 'image' => '/uploads/menu/tile-soups.png'],

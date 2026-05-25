@@ -8,20 +8,92 @@ require_admin();
 $admin = current_user();
 $kitchenCategories = db_all('SELECT id, name FROM restaurant_categories WHERE is_active = 1 ORDER BY name ASC');
 
+function save_restaurant_image_upload(array $file, string $fallbackPath, string $kind): string
+{
+    if (($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+        return $fallbackPath;
+    }
+
+    if (($file['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK) {
+        flash('error', 'Не удалось загрузить изображение ресторана.');
+        redirect_to('/admin/restaurants.php');
+    }
+
+    $maxSize = 6 * 1024 * 1024;
+    if ((int) ($file['size'] ?? 0) > $maxSize) {
+        flash('error', 'Изображение ресторана должно быть не больше 6 МБ.');
+        redirect_to('/admin/restaurants.php');
+    }
+
+    $tmpName = (string) ($file['tmp_name'] ?? '');
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $mime = $finfo->file($tmpName) ?: '';
+    $allowed = [
+        'image/jpeg' => 'jpg',
+        'image/png' => 'png',
+        'image/webp' => 'webp',
+    ];
+
+    if (!isset($allowed[$mime])) {
+        flash('error', 'Загрузите логотип или баннер в формате JPG, PNG или WEBP.');
+        redirect_to('/admin/restaurants.php');
+    }
+
+    $uploadDir = ROOT_PATH . '/public/uploads/restaurants';
+    if (!is_dir($uploadDir) && !mkdir($uploadDir, 0775, true) && !is_dir($uploadDir)) {
+        flash('error', 'Не удалось создать папку для изображений ресторанов.');
+        redirect_to('/admin/restaurants.php');
+    }
+
+    $safeKind = preg_replace('/[^a-z0-9_-]/i', '', $kind) ?: 'image';
+    $fileName = 'restaurant-' . $safeKind . '-' . date('Ymd-His') . '-' . bin2hex(random_bytes(4)) . '.' . $allowed[$mime];
+    $targetPath = $uploadDir . '/' . $fileName;
+
+    if (!move_uploaded_file($tmpName, $targetPath)) {
+        flash('error', 'Не удалось сохранить изображение ресторана.');
+        redirect_to('/admin/restaurants.php');
+    }
+
+    return '/uploads/restaurants/' . $fileName;
+}
+
+function parse_working_hours(string $hours): array
+{
+    if (preg_match('/(\d{2}:\d{2})\s*[-–—]\s*(\d{2}:\d{2})/u', $hours, $matches)) {
+        return [$matches[1], $matches[2]];
+    }
+
+    return ['10:00', '22:00'];
+}
+
 if (is_post()) {
     verify_csrf();
     $action = (string) ($_POST['action'] ?? '');
 
     if ($action === 'save') {
         $id = (int) ($_POST['id'] ?? 0);
+        $logoPath = trim((string) ($_POST['logo_image'] ?? ''));
+        $bannerPath = trim((string) ($_POST['banner_image'] ?? ''));
+        $logoPath = $logoPath !== '' ? $logoPath : '/uploads/restaurants/placeholder.svg';
+        $bannerPath = $bannerPath !== '' ? $bannerPath : '/uploads/restaurants/placeholder.svg';
+
+        $logoPath = save_restaurant_image_upload($_FILES['logo_file'] ?? [], $logoPath, 'logo');
+        $bannerPath = save_restaurant_image_upload($_FILES['banner_file'] ?? [], $bannerPath, 'banner');
+
+        $workingStart = trim((string) ($_POST['working_hours_start'] ?? '10:00'));
+        $workingEnd = trim((string) ($_POST['working_hours_end'] ?? '22:00'));
+        $workingHours = preg_match('/^\d{2}:\d{2}$/', $workingStart) && preg_match('/^\d{2}:\d{2}$/', $workingEnd)
+            ? $workingStart . ' - ' . $workingEnd
+            : '10:00 - 22:00';
+
         $data = [
             'name' => trim((string) ($_POST['name'] ?? '')),
             'short_description' => trim((string) ($_POST['short_description'] ?? '')),
-            'logo_image' => trim((string) ($_POST['logo_image'] ?? '')),
-            'banner_image' => trim((string) ($_POST['banner_image'] ?? '')),
+            'logo_image' => $logoPath,
+            'banner_image' => $bannerPath,
             'address' => trim((string) ($_POST['address'] ?? '')),
             'phone' => trim((string) ($_POST['phone'] ?? '')),
-            'working_hours' => trim((string) ($_POST['working_hours'] ?? '')),
+            'working_hours' => $workingHours,
             'rating' => (float) ($_POST['rating'] ?? 0),
             'delivery_fee' => (float) ($_POST['delivery_fee'] ?? 0),
             'min_order_amount' => (float) ($_POST['min_order_amount'] ?? 0),
@@ -112,7 +184,7 @@ require ROOT_PATH . '/templates/header.php';
         <div>
             <div class="panel">
                 <h3 style="margin-top:0;"><?= $editing ? 'Редактировать ресторан' : 'Новый ресторан' ?></h3>
-                <form method="post">
+                <form method="post" enctype="multipart/form-data">
                     <?= csrf_field() ?>
                     <input type="hidden" name="action" value="save">
                     <input type="hidden" name="id" value="<?= (int) ($editing['id'] ?? 0) ?>">
@@ -121,23 +193,62 @@ require ROOT_PATH . '/templates/header.php';
                         <div class="field"><label>Рейтинг</label><input type="number" step="0.1" min="0" max="5" name="rating" value="<?= e((string) ($editing['rating'] ?? 0)) ?>"></div>
                     </div>
                     <div class="field"><label>Описание</label><textarea name="short_description"><?= e((string) ($editing['short_description'] ?? '')) ?></textarea></div>
-                    <div class="two-col">
-                        <div class="field"><label>Логотип (путь)</label><input name="logo_image" value="<?= e((string) ($editing['logo_image'] ?? '/uploads/restaurants/placeholder.svg')) ?>"></div>
-                        <div class="field"><label>Баннер (путь)</label><input name="banner_image" value="<?= e((string) ($editing['banner_image'] ?? '/uploads/restaurants/placeholder.svg')) ?>"></div>
+                    <?php
+                    $currentLogo = (string) ($editing['logo_image'] ?? '/uploads/restaurants/placeholder.svg');
+                    $currentBanner = (string) ($editing['banner_image'] ?? '/uploads/restaurants/placeholder.svg');
+                    [$workingStart, $workingEnd] = parse_working_hours((string) ($editing['working_hours'] ?? '10:00 - 22:00'));
+                    ?>
+                    <div class="admin-media-grid">
+                        <div class="admin-image-upload admin-image-upload--compact" data-image-upload>
+                            <div class="admin-image-upload__content">
+                                <label>Логотип ресторана</label>
+                                <p class="muted">JPG, PNG или WEBP до 6 МБ. Если файл не выбран, используется текущий путь.</p>
+                                <input class="admin-image-upload__path" name="logo_image" value="<?= e($currentLogo) ?>" aria-label="Текущий путь логотипа">
+                                <label class="admin-upload-button">
+                                    <span>Выбрать логотип</span>
+                                    <input type="file" name="logo_file" accept="image/jpeg,image/png,image/webp" data-image-upload-input>
+                                </label>
+                                <small class="admin-upload-filename" data-image-upload-name>Файл не выбран</small>
+                            </div>
+                        </div>
+                        <div class="admin-image-upload admin-image-upload--compact" data-image-upload>
+                            <div class="admin-image-upload__content">
+                                <label>Баннер ресторана</label>
+                                <p class="muted">Горизонтальное изображение для карточек и страницы ресторана.</p>
+                                <input class="admin-image-upload__path" name="banner_image" value="<?= e($currentBanner) ?>" aria-label="Текущий путь баннера">
+                                <label class="admin-upload-button">
+                                    <span>Выбрать баннер</span>
+                                    <input type="file" name="banner_file" accept="image/jpeg,image/png,image/webp" data-image-upload-input>
+                                </label>
+                                <small class="admin-upload-filename" data-image-upload-name>Файл не выбран</small>
+                            </div>
+                        </div>
                     </div>
                     <div class="two-col">
                         <div class="field"><label>Адрес</label><input name="address" value="<?= e((string) ($editing['address'] ?? '')) ?>"></div>
-                        <div class="field"><label>Телефон</label><input type="tel" name="phone" value="<?= e((string) ($editing['phone'] ?? '')) ?>" placeholder="+7 (___) ___-__-__"></div>
+                        <div class="field"><label>Телефон</label><input type="tel" name="phone" value="<?= e((string) ($editing['phone'] ?? '')) ?>" placeholder="+7 ( _ _ _ ) _ _ _-_ _-_ _"></div>
                     </div>
                     <div class="two-col">
-                        <div class="field"><label>Часы работы</label><input name="working_hours" value="<?= e((string) ($editing['working_hours'] ?? '10:00 - 22:00')) ?>"></div>
-                        <div class="field"><label>Доставка (₽)</label><input type="number" step="0.01" name="delivery_fee" value="<?= e((string) ($editing['delivery_fee'] ?? 0)) ?>"></div>
+                        <div class="field">
+                            <label>Часы работы</label>
+                            <div class="admin-time-range">
+                                <label>
+                                    <span>С</span>
+                                    <input type="time" name="working_hours_start" value="<?= e($workingStart) ?>">
+                                </label>
+                                <label>
+                                    <span>До</span>
+                                    <input type="time" name="working_hours_end" value="<?= e($workingEnd) ?>">
+                                </label>
+                            </div>
+                        </div>
+                        <div class="field"><label>Доставка (₽)</label><input type="number" inputmode="decimal" step="0.01" name="delivery_fee" value="<?= e((string) ($editing['delivery_fee'] ?? 0)) ?>"></div>
                     </div>
                     <div class="two-col">
-                        <div class="field"><label>Мин. заказ (₽)</label><input type="number" step="0.01" name="min_order_amount" value="<?= e((string) ($editing['min_order_amount'] ?? 0)) ?>"></div>
+                        <div class="field"><label>Мин. заказ (₽)</label><input type="number" inputmode="decimal" step="0.01" name="min_order_amount" value="<?= e((string) ($editing['min_order_amount'] ?? 0)) ?>"></div>
                         <div class="two-col">
-                            <div class="field"><label>Мин. время</label><input type="number" name="delivery_time_min" value="<?= e((string) ($editing['delivery_time_min'] ?? 30)) ?>"></div>
-                            <div class="field"><label>Макс. время</label><input type="number" name="delivery_time_max" value="<?= e((string) ($editing['delivery_time_max'] ?? 60)) ?>"></div>
+                            <div class="field"><label>Мин. время</label><input type="number" inputmode="numeric" name="delivery_time_min" value="<?= e((string) ($editing['delivery_time_min'] ?? 30)) ?>"></div>
+                            <div class="field"><label>Макс. время</label><input type="number" inputmode="numeric" name="delivery_time_max" value="<?= e((string) ($editing['delivery_time_max'] ?? 60)) ?>"></div>
                         </div>
                     </div>
                     <label style="display:flex;gap:8px;align-items:center;margin:10px 0;">
